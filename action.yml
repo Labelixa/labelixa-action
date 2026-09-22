@@ -1,0 +1,114 @@
+name: "Labelixa ZPL Lint"
+description: "Lint and preview ZPL/EPL/TSPL/CPCL label files in CI: findings with rule links, before/after previews in the job summary, PNG artifacts."
+author: "Labelixa"
+branding:
+  icon: "tag"
+  color: "blue"
+
+inputs:
+  files:
+    description: "Files or glob patterns to check (space separated). ** * ? are expanded by the CLI."
+    required: false
+    default: "**/*.zpl"
+  fail-on:
+    description: "Lowest severity that fails the step: error, warning, info or none."
+    required: false
+    default: "error"
+  language:
+    description: "Printer language: zpl, epl, tspl or cpcl. Empty = by file extension."
+    required: false
+    default: ""
+  dpmm:
+    description: "ZPL print density (6, 8, 12 or 24)."
+    required: false
+    default: "8"
+  width:
+    description: "ZPL label width in inches."
+    required: false
+    default: "4"
+  height:
+    description: "ZPL label height in inches."
+    required: false
+    default: "6"
+  render:
+    description: "Render one PNG per label into out-dir (true/false)."
+    required: false
+    default: "true"
+  previews:
+    description: "Create shareable preview links for the job summary (true/false). Needs the API's snippet feature; skipped silently when it is not available."
+    required: false
+    default: "true"
+  badge:
+    description: "Report the result to the Labelixa badge service so that https://labelixa.com/badge/gh/OWNER/REPO.svg shows it (true/false). Needs `permissions: id-token: write`; public repositories only."
+    required: false
+    default: "false"
+  artifact:
+    description: "Upload out-dir as a workflow artifact (true/false)."
+    required: false
+    default: "true"
+  artifact-name:
+    description: "Name of the uploaded artifact."
+    required: false
+    default: "labelixa-previews"
+  out-dir:
+    description: "Directory for the JSON report and rendered PNGs."
+    required: false
+    default: "labelixa-out"
+  api-key:
+    description: "Labelixa API key (use a repository secret). Empty = anonymous quota."
+    required: false
+    default: ""
+  api-url:
+    description: "API base URL (on-premise installations)."
+    required: false
+    default: "https://api.labelixa.com"
+  cli-version:
+    description: "Version of the labelixa npm package to run."
+    required: false
+    default: "0.3.0"
+  working-directory:
+    description: "Directory the globs are resolved in."
+    required: false
+    default: "."
+
+outputs:
+  failed:
+    description: "Number of files with findings at or above fail-on."
+    value: ${{ steps.lint.outputs.failed }}
+  files:
+    description: "Number of files checked."
+    value: ${{ steps.lint.outputs.files }}
+  report:
+    description: "Path of the JSON report."
+    value: ${{ steps.lint.outputs.report }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+      with:
+        node-version: "22"
+    - id: lint
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_LANGUAGE: ${{ inputs.language }}
+        INPUT_DPMM: ${{ inputs.dpmm }}
+        INPUT_WIDTH: ${{ inputs.width }}
+        INPUT_HEIGHT: ${{ inputs.height }}
+        INPUT_RENDER: ${{ inputs.render }}
+        INPUT_PREVIEWS: ${{ inputs.previews }}
+        INPUT_BADGE: ${{ inputs.badge }}
+        INPUT_OUT_DIR: ${{ inputs.out-dir }}
+        INPUT_CLI_VERSION: ${{ inputs.cli-version }}
+        LABELIXA_API_KEY: ${{ inputs.api-key }}
+        LABELIXA_API_URL: ${{ inputs.api-url }}
+      run: node "${{ github.action_path }}/run.mjs"
+    - if: ${{ always() && inputs.artifact == 'true' && inputs.render == 'true' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.working-directory }}/${{ inputs.out-dir }}
+        if-no-files-found: ignore

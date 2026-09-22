@@ -1,0 +1,25 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "22"
+      - run: node scripts/check-publish.mjs
+      # The action runs on its own sample labels against the live API
+      # (one of them carries a finding on purpose; the run must stay green).
+      - uses: ./
+        with:
+          files: "test/labels/shipping.zpl test/labels/unterminated.zpl"
+          fail-on: none
+          previews: false
+          artifact: false
+          api-url: https://api.labelixa.com

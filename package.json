@@ -1,0 +1,29 @@
+{
+  "name": "labelixa-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action: lint and preview ZPL/EPL/TSPL/CPCL label files with the Labelixa CLI.",
+  "type": "module",
+  "files": [
+    "action.yml",
+    "run.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check-publish": "node scripts/check-publish.mjs"
+  },
+  "license": "MIT",
+  "homepage": "https://labelixa.com/docs/cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Labelixa/labelixa-action.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Labelixa/labelixa-action/issues",
+    "email": "support@labelixa.com"
+  }
+}
