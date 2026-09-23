@@ -1,5 +1,5 @@
 name: "Labelixa ZPL Lint"
-description: "Lint and preview ZPL/EPL/TSPL/CPCL label files in CI: findings with rule links, before/after previews in the job summary, PNG artifacts."
+description: "Lint and preview ZPL/EPL/TSPL/CPCL label files in CI: findings with rule links, before/after previews, PNG artifacts."
 author: "Labelixa"
 branding:
   icon: "tag"
